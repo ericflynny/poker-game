@@ -1,0 +1,44 @@
+#include "BetSelector.h"
+#include <algorithm>
+
+BetSelector::BetSelector(int x, int y, int w, int h, int levels)
+    : Fl_Group(x, y, w, h) {
+    int btnW = w / levels;
+
+    for (int i = 0; i < levels; ++i) {
+        auto* btn = new Fl_Button(x + i * btnW, y, btnW - 4, h, "");
+        btn->copy_label(std::to_string(i + 1).c_str());
+        btn->callback(buttonCallback, this);
+        buttons_.push_back(btn);
+    }
+
+    setSelectedBet(1);
+    end();
+}
+
+void BetSelector::setSelectedBet(int bet) {
+    selectedBet_ = bet;
+    for (size_t i = 0; i < buttons_.size(); ++i) {
+        bool isSelected = (static_cast<int>(i) + 1 == bet);
+        buttons_[i]->color(isSelected ? FL_YELLOW : FL_BACKGROUND_COLOR);
+        buttons_[i]->redraw();
+    }
+}
+
+void BetSelector::setOnBetSelected(std::function<void(int)> cb) {
+    onBetSelected_ = std::move(cb);
+}
+
+void BetSelector::handleButtonClicked(int bet) {
+    setSelectedBet(bet);
+    if (onBetSelected_) onBetSelected_(bet);
+}
+
+void BetSelector::buttonCallback(Fl_Widget* w, void* data) {
+    auto* self = static_cast<BetSelector*>(data);
+    auto it = std::find(self->buttons_.begin(), self->buttons_.end(), w);
+    if (it != self->buttons_.end()) {
+        int bet = static_cast<int>(std::distance(self->buttons_.begin(), it)) + 1;
+        self->handleButtonClicked(bet);
+    }
+}
