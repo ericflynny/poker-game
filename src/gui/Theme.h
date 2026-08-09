@@ -1,0 +1,21 @@
+#pragma once
+
+#include <FL/Enumerations.H>
+#include <FL/fl_draw.H>
+
+// Shared color palette so every GUI component draws from the same theme.
+namespace Theme {
+    inline const Fl_Color FeltGreen     = fl_rgb_color(21, 71, 45);
+    inline const Fl_Color FeltGreenDark = fl_rgb_color(13, 48, 30);
+    inline const Fl_Color PanelDark     = fl_rgb_color(12, 40, 27);
+    inline const Fl_Color Gold          = fl_rgb_color(212, 175, 55);
+    inline const Fl_Color GoldDim       = fl_rgb_color(163, 130, 40);
+    inline const Fl_Color Cream         = fl_rgb_color(245, 240, 222);
+    inline const Fl_Color CardFace      = fl_rgb_color(250, 250, 245);
+    inline const Fl_Color HeldHighlight = fl_rgb_color(232, 194, 62);
+    inline const Fl_Color RedSuit       = fl_rgb_color(178, 32, 32);
+    inline const Fl_Color BlackSuit     = fl_rgb_color(25, 25, 25);
+    inline const Fl_Color DealGreen     = fl_rgb_color(40, 130, 74);
+    inline const Fl_Color DiscardRed    = fl_rgb_color(120, 34, 34);
+    inline const Fl_Color SlotMetal     = fl_rgb_color(35, 35, 40);
+}

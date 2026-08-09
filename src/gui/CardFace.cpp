@@ -1,0 +1,54 @@
+#include "CardFace.h"
+#include <FL/fl_draw.H>
+
+CardFace::CardFace(int x, int y, int w, int h)
+    : Fl_Box(x, y, w, h) {
+    box(FL_ROUNDED_BOX);
+}
+
+void CardFace::setCard(const std::string& rank, const std::string& suitSymbol, Fl_Color suitColor) {
+    rank_ = rank;
+    suitSymbol_ = suitSymbol;
+    suitColor_ = suitColor;
+    hasCard_ = true;
+    redraw();
+}
+
+void CardFace::clear() {
+    hasCard_ = false;
+    redraw();
+}
+
+void CardFace::draw() {
+    Fl_Box::draw(); // rounded card background/border via box()/color()
+
+    if (!hasCard_) return;
+
+    fl_color(suitColor_);
+
+    const int margin = 8;
+    int rankW = 0, rankH = 0;
+    int symW = 0, symH = 0;
+
+    // Top-left corner: rank over suit symbol.
+    fl_font(FL_HELVETICA_BOLD, 15);
+    fl_measure(rank_.c_str(), rankW, rankH);
+    fl_draw(rank_.c_str(), x() + margin, y() + margin + fl_height());
+
+    fl_font(FL_HELVETICA_BOLD, 15);
+    fl_measure(suitSymbol_.c_str(), symW, symH);
+    fl_draw(suitSymbol_.c_str(), x() + margin, y() + margin + 2 * fl_height());
+
+    // Bottom-right corner: same pair, mirrored position.
+    fl_font(FL_HELVETICA_BOLD, 15);
+    fl_measure(rank_.c_str(), rankW, rankH);
+    fl_draw(rank_.c_str(), x() + w() - margin - rankW, y() + h() - margin - fl_height() / 3);
+
+    fl_measure(suitSymbol_.c_str(), symW, symH);
+    fl_draw(suitSymbol_.c_str(), x() + w() - margin - symW, y() + h() - margin - fl_height() - fl_height() / 3);
+
+    // Large centered suit symbol.
+    fl_font(FL_HELVETICA_BOLD, 46);
+    fl_measure(suitSymbol_.c_str(), symW, symH);
+    fl_draw(suitSymbol_.c_str(), x() + (w() - symW) / 2, y() + h() / 2 + fl_height() / 3);
+}
