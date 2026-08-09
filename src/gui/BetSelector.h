@@ -1,0 +1,25 @@
+#pragma once
+
+#include <FL/Fl_Group.H>
+#include <FL/Fl_Button.H>
+#include <functional>
+#include <vector>
+
+// "Place Your Bet" row of numbered buttons (1..levels).
+class BetSelector : public Fl_Group {
+public:
+    BetSelector(int x, int y, int w, int h, int levels = 5);
+
+    void setSelectedBet(int bet);
+    int selectedBet() const { return selectedBet_; }
+
+    void setOnBetSelected(std::function<void(int)> cb);
+
+private:
+    static void buttonCallback(Fl_Widget* w, void* data);
+    void handleButtonClicked(int bet);
+
+    std::vector<Fl_Button*> buttons_;
+    int selectedBet_ = 1;
+    std::function<void(int)> onBetSelected_;
+};
