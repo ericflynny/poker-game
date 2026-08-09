@@ -24,69 +24,22 @@ class Game
         void insertCoin() {_credits++;}
         void setBet(int bet) {_bet = bet;}
 
-        // Single entry point for the Deal button: starts a new hand if none
-        // is in progress, otherwise draws replacements and pays out.
-        void handleDeal()
-        {
-            if (_roundInProgress)
-            {
-                drawAndEvaluate();
-            }
-            else
-            {
-                deal();
-            }
-        }
-
-        void setHold(int cardIndex, bool held)
-        {
-            assert(_hand.has_value());
-            _hand->setHold(cardIndex, held);
-        }
-
-        void cashOut() {_credits = 0;}
-
         // Read accessors for the GUI
         int credits() const {return _credits;}
         int bet() const {return _bet;}
         bool roundInProgress() const {return _roundInProgress;}
-
-        std::string cardLabel(int cardIndex) const
-        {
-            assert(_hand.has_value());
-            return _hand->card(cardIndex).toString();
-        }
-
-        bool cardIsHeld(int cardIndex) const
-        {
-            assert(_hand.has_value());
-            return _hand->cardIsHeld(cardIndex);
-        }
-
         std::string handName() const {return WinningHandName.at(_lastResult.hand);}
         int payout() const {return _lastResult.odds * _bet;}
 
+        void handleDeal();
+        void setHold(int cardIndex, bool held);
+        void cashOut();
+        std::string cardLabel(int cardIndex) const;
+        bool cardIsHeld(int cardIndex) const;
+
     private:
-        void deal()
-        {
-            _credits -= _bet;
-            _hand.emplace(_deck);
-            _roundInProgress = true;
-            _lastResult = {Loser, 0};
-        }
-
-        void drawAndEvaluate()
-        {
-            assert(_hand.has_value());
-            _hand->drawReplacements();
-
-            HandEvaluator evaluator(*_hand);
-            _lastResult = evaluator.evaluateHand();
-            _credits += _lastResult.odds * _bet;
-
-            _roundInProgress = false;
-        }
-
+        void deal();
+        void drawAndEvaluate();
         Deck _deck;
         std::optional<Hand> _hand;
 
