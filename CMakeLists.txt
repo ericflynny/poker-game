@@ -6,14 +6,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(FLTK REQUIRED)
 
+file(GLOB BACKEND_SOURCES CONFIGURE_DEPENDS src/backend/*.cpp)
+file(GLOB GUI_SOURCES CONFIGURE_DEPENDS src/gui/*.cpp)
+
 add_executable(poker_gui
-    src/main.cpp
-    src/CardView.cpp
-    src/PayoutBanner.cpp
-    src/BetSelector.cpp
-    src/CoinSlot.cpp
-    src/PokerMachineWindow.cpp
+    ${GUI_SOURCES}
+    ${BACKEND_SOURCES}
 )
 
-target_include_directories(poker_gui PRIVATE ${FLTK_INCLUDE_DIR} src)
+target_include_directories(poker_gui PRIVATE ${FLTK_INCLUDE_DIR} src/gui src/backend)
 target_link_libraries(poker_gui PRIVATE ${FLTK_LIBRARIES})
