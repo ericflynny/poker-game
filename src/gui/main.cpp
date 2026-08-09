@@ -5,7 +5,7 @@ int main(int argc, char** argv) {
     PokerMachineWindow window;
 
     // Initial display state -- replace with values from your backend.
-    window.setHandName("Jacks or Better");
+    window.setHandName("");
     window.setBet(1);
     window.setPayout(0);
     window.setCoinsRemaining(0);
