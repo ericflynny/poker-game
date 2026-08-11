@@ -1,42 +1,98 @@
+/*
+    DEVELOPED WITH CLAUDE ASSISTANCE
+*/
 #include <FL/Fl.H>
 #include "PokerMachineWindow.h"
+#include "game.hpp"
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
     PokerMachineWindow window;
+    Game game;
+    game.setBet(1);
 
-    // Initial display state -- replace with values from your backend.
-    window.setHandName("");
-    window.setBet(1);
+    // Initial display state
+    window.setHandName(game.handName());
+    window.setBet(game.bet());
     window.setPayout(0);
-    window.setCoinsRemaining(0);
-    for (int i = 0; i < PokerMachineWindow::kNumCards; ++i) {
-        window.setCardText(i, "Card " + std::to_string(i + 1));
+    window.setCoinsRemaining(game.credits());
+    // setCardText() only draws a card when given a real label, empty slot is blank
+    for (int i = 0; i < PokerMachineWindow::kNumCards; ++i)
+    {
+        window.setCardText(i, "");
     }
 
-    // Wire these up to your game logic. Each callback below is where
-    // your backend should react to a user action and then call the
-    // window's set*() methods to reflect the new state.
-    window.setOnDeal([]() {
-        // TODO: backend deals/draws cards, updates payout, etc.
+    window.setOnDeal([&]()
+    {
+        bool wasDrawPhase = game.roundInProgress();
+
+        // Check funds before dealing, handleDeal() will have deducted the bet by the time it returns
+        bool insufficientFunds = !wasDrawPhase && game.credits() < game.bet();
+        game.handleDeal();
+
+        if (insufficientFunds)
+        {
+            window.setHandName("Insufficient amount of credits");
+            return;
+        }
+
+        for (int i = 0; i < PokerMachineWindow::kNumCards; ++i)
+        {
+            window.setCardText(i, game.cardLabel(i));
+        }
+
+        if (!wasDrawPhase)
+        {
+            // Fresh hand, clear holds and last result.
+            window.resetCardHolds();
+            window.setHandName("");
+            window.setPayout(0);
+        }
+        else
+        {
+            // Drew replacements and evaluated the final hand
+            window.setHandName(game.handName());
+            window.setPayout(game.payout());
+        }
+
+        window.setCoinsRemaining(game.credits());
     });
-    window.setOnCashOut([]() {
-        // TODO: backend cashes out remaining coins.
+
+    window.setOnCashOut([&]()
+    {
+        game.cashOut();
+
+        for (int i = 0; i < PokerMachineWindow::kNumCards; ++i)
+        {
+            window.setCardText(i, "");
+        }
+        window.resetCardHolds();
+        window.setHandName("");
+        window.setPayout(0);
+        window.setCoinsRemaining(game.credits());
     });
-    window.setOnInsertCoin([]() {
-        // TODO: backend increments coins remaining.
+
+    window.setOnInsertCoin([&]()
+    {
+        game.insertCoin();
+        window.setCoinsRemaining(game.credits());
     });
-    window.setOnBetSelected([](int bet) {
-        // TODO: backend records the selected bet amount.
-        (void)bet;
+
+    window.setOnBetSelected([&](int bet)
+    {
+        game.setBet(bet);
+        window.setBet(bet);
     });
-    window.setOnHoldChanged([](int cardIndex, bool held) {
-        // TODO: backend marks/unmarks the card as held.
-        (void)cardIndex;
-        (void)held;
+
+    window.setOnHoldChanged([&](int cardIndex, bool held)
+    {
+        game.setHold(cardIndex, held);
     });
-    window.setOnDiscard([](int cardIndex) {
-        // TODO: backend discards and replaces the given card.
-        (void)cardIndex;
+
+    window.setOnDiscard([&](int cardIndex)
+    {
+        // Card is availavle for redraw next time Deal is pressed
+        game.setHold(cardIndex, false);
     });
 
     window.show(argc, argv);
